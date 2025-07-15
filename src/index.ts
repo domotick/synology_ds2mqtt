@@ -199,8 +199,8 @@ const main = async () => {
 					path: 'auth',
 					query: {
 						api: 'SYNO.API.Auth',
-						method: 'Login',
-						version: '3',
+						method: 'login',
+						version: '6',
 						account: dsLogin,
 						passwd: dsPassword,
 						session: 'DS2MQTT',
