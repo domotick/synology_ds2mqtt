@@ -57,6 +57,98 @@ Run watch
 make ds2mqtt-watch
 ```
 
+## Card Example
+
+```yaml
+type: markdown
+content: >
+  {% if states('sensor.synology_ds_task_total') != 'unavailable' %}
+  {% set downloads = state_attr('sensor.synology_ds_task_total','list') |
+  from_json%}
+  <table>
+  <tr>
+    <th>Name</th>
+    <th>Size</th>
+    <th>Speed</th>
+    <th>Progression</th>
+  </tr>
+  {% for key in downloads %}
+  {% if downloads[key].size != 'NaN' %}
+  <tr>
+  <td>
+    {{ downloads[key].name }}
+  </td>
+  <td>
+    {{ (downloads[key].size / (1024*1024*1024)) | round(1, 'floor') }} Go
+  </td>
+  <td>
+    {% if downloads[key].down_speed == 0 %}
+    {% else %}
+    {{ (downloads[key].down_speed / (1024*1024)) | round(0, 'floor') }} Mo/s
+    {% endif %}
+  </td>
+  <td>
+    {% if downloads[key].status == 'finished' %}
+    <mark />
+    {% else %}
+    {{ downloads[key].percent_done | regex_replace(find='\.\d+', replace='') }}%
+    {% endif %}
+  </td>
+  </tr>
+  {% endif %}
+  {% endfor %}
+  </table>
+  {% endif %}
+card_mod:
+  style:
+    .: |
+      ha-card ha-markdown {
+        padding: 0px;
+      }
+    ha-markdown $: |
+      th {
+        font-weight: bold;
+        font-size: 1em;
+        text-align: left;
+        padding: 8px 12px;
+      }
+      table{
+        border-collapse: collapse;
+        font-size: 0.9em;
+        font-family: Roboto;
+        width: 100%;
+        outline: 0px solid #393c3d;
+        margin-top: 10px;
+      }
+      td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 0px solid #1c2020;
+      }
+      td:nth-child(2), td:nth-child(3) {
+        white-space: nowrap;
+      }
+      tr {
+        border-bottom: 0px solid #1c2020;
+      }
+      tr:nth-of-type(even) {
+        background-color: rgb(54, 54, 54, 0.3);
+      }
+      tr:last-of-type {
+        border-bottom: transparent;
+      }
+      mark {
+        background: lightgreen;
+        color: #222627;
+        border-radius: 5px;
+        padding: 5px;
+        display: block;
+      }
+      tr:nth-child(n+2) > td:nth-child(2) {
+        text-align: left;
+      }
+
+```
 
 ## Docker hub
 
